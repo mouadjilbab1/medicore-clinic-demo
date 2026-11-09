@@ -73,9 +73,22 @@ class Invoice extends Model
 
     public function recalculateTotals(): void
     {
-        $subtotal = $this->items->sum('total');
-        $this->subtotal = $subtotal;
-        $this->total_amount = max(0, $subtotal - $this->discount_amount + $this->tax_amount);
+        $grossSubtotal = 0;
+        $totalDiscount = 0;
+        $totalTax = 0;
+
+        foreach ($this->items as $item) {
+            $itemGross = floatval($item->unit_price) * intval($item->quantity);
+            $itemNet = max(0, $itemGross - floatval($item->discount));
+            $grossSubtotal += $itemGross;
+            $totalDiscount += floatval($item->discount);
+            $totalTax += $itemNet * (floatval($item->tax_rate) / 100.0);
+        }
+
+        $this->subtotal = $grossSubtotal;
+        $this->discount_amount = $totalDiscount;
+        $this->tax_amount = $totalTax;
+        $this->total_amount = max(0, $grossSubtotal - $totalDiscount + $totalTax);
         $this->paid_amount = $this->payments->sum('amount');
         $this->balance_due = max(0, $this->total_amount - $this->paid_amount);
 

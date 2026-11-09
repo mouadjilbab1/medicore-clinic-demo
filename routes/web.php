@@ -38,98 +38,147 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::post('/locale/set', [AuthController::class, 'setLocale'])->name('locale.set');
 Route::post('/branch/switch', [AuthController::class, 'switchBranch'])->name('branch.switch')->middleware('auth');
 
-// 3. Dedicated Patient Portal
-Route::prefix('portal')->name('portal.')->group(function () {
+// 3. Dedicated Patient Portal (Strict Isolation)
+Route::prefix('portal')->name('portal.')->middleware(['auth'])->group(function () {
     Route::get('/', [PatientPortalController::class, 'dashboard'])->name('dashboard');
     Route::post('/appointments/request', [PatientPortalController::class, 'requestAppointment'])->name('appointments.request');
 });
 
-// 4. Clinical System (Protected Staff Routes)
-Route::middleware(['auth'])->group(function () {
+// 4. Clinical System (Protected Staff Routes with Granular RBAC)
+Route::middleware(['auth', 'role:admin,director,manager,doctor,dentist,nurse,receptionist,accountant,pharmacist,lab_tech,imaging_tech,inventory_mgr'])->group(function () {
+    
+    // Clinical Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Patients
-    Route::resource('patients', PatientController::class);
-    Route::post('/patients/check-duplicates', [PatientController::class, 'checkDuplicates'])->name('patients.check-duplicates');
-    Route::post('/patients/merge', [PatientController::class, 'merge'])->name('patients.merge');
+    // Patients Management
+    Route::middleware(['role:admin,director,manager,doctor,dentist,nurse,receptionist'])->group(function () {
+        Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
+        Route::get('/patients/create', [PatientController::class, 'create'])->name('patients.create');
+        Route::post('/patients', [PatientController::class, 'store'])->name('patients.store');
+        Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
+        Route::get('/patients/{patient}/edit', [PatientController::class, 'edit'])->name('patients.edit');
+        Route::put('/patients/{patient}', [PatientController::class, 'update'])->name('patients.update');
+        Route::patch('/patients/{patient}', [PatientController::class, 'update']);
+        Route::post('/patients/check-duplicates', [PatientController::class, 'checkDuplicates'])->name('patients.check-duplicates');
+    });
+
+    Route::middleware(['role:admin,director,manager'])->group(function () {
+        Route::delete('/patients/{patient}', [PatientController::class, 'destroy'])->name('patients.destroy');
+        Route::post('/patients/merge', [PatientController::class, 'merge'])->name('patients.merge');
+    });
 
     // Appointments & Scheduling
-    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
-    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-    Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
-    Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
+    Route::middleware(['role:admin,director,manager,doctor,dentist,nurse,receptionist'])->group(function () {
+        Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+        Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+        Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
+        Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
+    });
 
     // Waiting Room & Queue
-    Route::get('/waiting-room', [WaitingQueueController::class, 'index'])->name('waiting-room.index');
-    Route::post('/waiting-room/check-in', [WaitingQueueController::class, 'checkIn'])->name('waiting-room.check-in');
-    Route::post('/waiting-room/{id}/call', [WaitingQueueController::class, 'callNext'])->name('waiting-room.call');
-    Route::post('/waiting-room/{id}/complete', [WaitingQueueController::class, 'complete'])->name('waiting-room.complete');
-    Route::post('/waiting-room/{id}/skip', [WaitingQueueController::class, 'skip'])->name('waiting-room.skip');
-    Route::post('/waiting-room/{id}/transfer', [WaitingQueueController::class, 'transfer'])->name('waiting-room.transfer');
     Route::get('/waiting-room/display', [WaitingQueueController::class, 'publicDisplay'])->name('waiting-room.display');
+    Route::middleware(['role:admin,director,manager,doctor,dentist,nurse,receptionist'])->group(function () {
+        Route::get('/waiting-room', [WaitingQueueController::class, 'index'])->name('waiting-room.index');
+        Route::post('/waiting-room/check-in', [WaitingQueueController::class, 'checkIn'])->name('waiting-room.check-in');
+        Route::post('/waiting-room/{id}/call', [WaitingQueueController::class, 'callNext'])->name('waiting-room.call');
+        Route::post('/waiting-room/{id}/complete', [WaitingQueueController::class, 'complete'])->name('waiting-room.complete');
+        Route::post('/waiting-room/{id}/skip', [WaitingQueueController::class, 'skip'])->name('waiting-room.skip');
+        Route::post('/waiting-room/{id}/transfer', [WaitingQueueController::class, 'transfer'])->name('waiting-room.transfer');
+    });
 
-    // Consultations & EMR
-    Route::resource('consultations', ConsultationController::class);
-    Route::post('/consultations/{id}/vitals', [ConsultationController::class, 'addVitals'])->name('consultations.vitals');
-    Route::post('/consultations/{id}/diagnoses', [ConsultationController::class, 'addDiagnosis'])->name('consultations.diagnoses');
-    Route::post('/consultations/{id}/sign', [ConsultationController::class, 'signAndFinalize'])->name('consultations.sign');
-    Route::post('/consultations/{id}/revisions', [ConsultationController::class, 'addRevision'])->name('consultations.revisions');
-    Route::post('/consultations/{id}/dermatology', [ConsultationController::class, 'addDermatology'])->name('consultations.dermatology');
-    Route::post('/consultations/{id}/pediatrics', [ConsultationController::class, 'addPediatricGrowth'])->name('consultations.pediatrics');
-    Route::post('/consultations/{id}/physiotherapy', [ConsultationController::class, 'addPhysiotherapy'])->name('consultations.physiotherapy');
+    // Consultations & EMR (Receptionist & Accountant forbidden from medical records)
+    Route::middleware(['role:admin,director,manager,doctor,dentist,nurse'])->group(function () {
+        Route::get('/consultations', [ConsultationController::class, 'index'])->name('consultations.index');
+        Route::get('/consultations/{id}', [ConsultationController::class, 'show'])->name('consultations.show');
+        Route::post('/consultations/{id}/vitals', [ConsultationController::class, 'addVitals'])->name('consultations.vitals');
+    });
 
-    // Specialties - Dental FDI Odontogram
-    Route::get('/specialties/dental', [DentalController::class, 'index'])->name('dental.index');
-    Route::post('/specialties/dental/{patientId}/tooth/{toothNumber}', [DentalController::class, 'updateTooth'])->name('dental.tooth.update');
-    Route::post('/specialties/dental/{patientId}/treatments', [DentalController::class, 'storeTreatment'])->name('dental.treatments.store');
-    Route::patch('/specialties/dental/treatments/{id}/stage', [DentalController::class, 'updateTreatmentStage'])->name('dental.treatments.stage');
+    // Clinical Diagnosis & Finalization (Strictly Doctor & Dentist)
+    Route::middleware(['role:admin,director,manager,doctor,dentist'])->group(function () {
+        Route::get('/consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
+        Route::post('/consultations', [ConsultationController::class, 'store'])->name('consultations.store');
+        Route::post('/consultations/{id}/diagnoses', [ConsultationController::class, 'addDiagnosis'])->name('consultations.diagnoses');
+        Route::post('/consultations/{id}/sign', [ConsultationController::class, 'signAndFinalize'])->name('consultations.sign');
+        Route::post('/consultations/{id}/revisions', [ConsultationController::class, 'addRevision'])->name('consultations.revisions');
+        Route::post('/consultations/{id}/dermatology', [ConsultationController::class, 'addDermatology'])->name('consultations.dermatology');
+        Route::post('/consultations/{id}/pediatrics', [ConsultationController::class, 'addPediatricGrowth'])->name('consultations.pediatrics');
+        Route::post('/consultations/{id}/physiotherapy', [ConsultationController::class, 'addPhysiotherapy'])->name('consultations.physiotherapy');
 
-    // Specialties - Ophthalmology
-    Route::get('/specialties/ophthalmology', [OphthalmologyController::class, 'index'])->name('ophthalmology.index');
-    Route::post('/specialties/ophthalmology', [OphthalmologyController::class, 'store'])->name('ophthalmology.store');
+        // Specialties - Dental FDI Odontogram
+        Route::get('/specialties/dental', [DentalController::class, 'index'])->name('dental.index');
+        Route::post('/specialties/dental/{patientId}/tooth/{toothNumber}', [DentalController::class, 'updateTooth'])->name('dental.tooth.update');
+        Route::post('/specialties/dental/{patientId}/treatments', [DentalController::class, 'storeTreatment'])->name('dental.treatments.store');
+        Route::patch('/specialties/dental/treatments/{id}/stage', [DentalController::class, 'updateTreatmentStage'])->name('dental.treatments.stage');
 
-    // Specialties - Form Builder
-    Route::get('/specialties/form-builder', [SpecialtyFormController::class, 'index'])->name('form-builder.index');
-    Route::post('/specialties/form-builder', [SpecialtyFormController::class, 'storeForm'])->name('form-builder.store');
-    Route::get('/specialties/form-builder/{id}', [SpecialtyFormController::class, 'show'])->name('form-builder.show');
-    Route::post('/specialties/form-builder/{id}/fields', [SpecialtyFormController::class, 'addField'])->name('form-builder.add-field');
-    Route::post('/specialties/form-builder/{id}/responses', [SpecialtyFormController::class, 'submitResponse'])->name('form-builder.submit');
+        // Specialties - Ophthalmology
+        Route::get('/specialties/ophthalmology', [OphthalmologyController::class, 'index'])->name('ophthalmology.index');
+        Route::post('/specialties/ophthalmology', [OphthalmologyController::class, 'store'])->name('ophthalmology.store');
+
+        // Specialties - Form Builder
+        Route::get('/specialties/form-builder', [SpecialtyFormController::class, 'index'])->name('form-builder.index');
+        Route::post('/specialties/form-builder', [SpecialtyFormController::class, 'storeForm'])->name('form-builder.store');
+        Route::get('/specialties/form-builder/{id}', [SpecialtyFormController::class, 'show'])->name('form-builder.show');
+        Route::post('/specialties/form-builder/{id}/fields', [SpecialtyFormController::class, 'addField'])->name('form-builder.add-field');
+        Route::post('/specialties/form-builder/{id}/responses', [SpecialtyFormController::class, 'submitResponse'])->name('form-builder.submit');
+    });
 
     // Prescriptions
-    Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'store', 'show']);
-    Route::get('/prescriptions/{id}/print', [PrescriptionController::class, 'print'])->name('prescriptions.print');
+    Route::middleware(['role:admin,director,manager,doctor,dentist,nurse,pharmacist'])->group(function () {
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+        Route::get('/prescriptions/{id}', [PrescriptionController::class, 'show'])->name('prescriptions.show');
+        Route::get('/prescriptions/{id}/print', [PrescriptionController::class, 'print'])->name('prescriptions.print');
+    });
+    Route::middleware(['role:admin,director,manager,doctor,dentist'])->group(function () {
+        Route::post('/prescriptions', [PrescriptionController::class, 'store'])->name('prescriptions.store');
+    });
 
-    // Billing & Invoices
-    Route::resource('billing', BillingController::class)->only(['index', 'store', 'show']);
-    Route::post('/billing/{id}/payment', [BillingController::class, 'recordPayment'])->name('billing.payment');
+    // Billing & Cashier Desk
+    Route::middleware(['role:admin,director,manager,accountant,receptionist'])->group(function () {
+        Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('/billing', [BillingController::class, 'store'])->name('billing.store');
+        Route::get('/billing/{id}', [BillingController::class, 'show'])->name('billing.show');
+        Route::post('/billing/{id}/payment', [BillingController::class, 'recordPayment'])->name('billing.payment');
+    });
 
-    // Financial Management & Closing
-    Route::get('/financial', [FinancialController::class, 'index'])->name('financial.index');
-    Route::post('/financial/expenses', [FinancialController::class, 'storeExpense'])->name('financial.expenses.store');
-    Route::post('/financial/close-register', [FinancialController::class, 'closeRegister'])->name('financial.close-register');
+    // Financial Management & Closing (Doctor & Receptionist strictly blocked)
+    Route::middleware(['role:admin,director,manager,accountant'])->group(function () {
+        Route::get('/financial', [FinancialController::class, 'index'])->name('financial.index');
+        Route::post('/financial/expenses', [FinancialController::class, 'storeExpense'])->name('financial.expenses.store');
+        Route::post('/financial/close-register', [FinancialController::class, 'closeRegister'])->name('financial.close-register');
+    });
 
     // Inventory & Pharmacy
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::post('/inventory/products', [InventoryController::class, 'storeProduct'])->name('inventory.products.store');
-    Route::post('/inventory/products/{id}/movement', [InventoryController::class, 'recordMovement'])->name('inventory.movement');
+    Route::middleware(['role:admin,director,manager,inventory_mgr,pharmacist'])->group(function () {
+        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('/inventory/products', [InventoryController::class, 'storeProduct'])->name('inventory.products.store');
+        Route::post('/inventory/products/{id}/movement', [InventoryController::class, 'recordMovement'])->name('inventory.movement');
+    });
 
     // Laboratory
-    Route::get('/laboratory', [LaboratoryController::class, 'index'])->name('laboratory.index');
-    Route::post('/laboratory/requests', [LaboratoryController::class, 'storeRequest'])->name('laboratory.requests.store');
-    Route::post('/laboratory/requests/{id}/result', [LaboratoryController::class, 'addResult'])->name('laboratory.result');
+    Route::middleware(['role:admin,director,manager,lab_tech,doctor,dentist'])->group(function () {
+        Route::get('/laboratory', [LaboratoryController::class, 'index'])->name('laboratory.index');
+        Route::post('/laboratory/requests', [LaboratoryController::class, 'storeRequest'])->name('laboratory.requests.store');
+        Route::post('/laboratory/requests/{id}/result', [LaboratoryController::class, 'addResult'])->name('laboratory.result');
+    });
 
     // Imaging
-    Route::get('/imaging', [ImagingController::class, 'index'])->name('imaging.index');
-    Route::post('/imaging/requests', [ImagingController::class, 'storeRequest'])->name('imaging.requests.store');
-    Route::post('/imaging/requests/{id}/report', [ImagingController::class, 'saveReport'])->name('imaging.report');
+    Route::middleware(['role:admin,director,manager,imaging_tech,doctor,dentist'])->group(function () {
+        Route::get('/imaging', [ImagingController::class, 'index'])->name('imaging.index');
+        Route::post('/imaging/requests', [ImagingController::class, 'storeRequest'])->name('imaging.requests.store');
+        Route::post('/imaging/requests/{id}/report', [ImagingController::class, 'saveReport'])->name('imaging.report');
+    });
 
-    // Staff & HR
-    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    // Staff & HR Administration
+    Route::middleware(['role:admin,director,manager'])->group(function () {
+        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    });
 
-    // Backups
-    Route::get('/settings/backup', [BackupController::class, 'index'])->name('backups.index');
-    Route::post('/settings/backup/create', [BackupController::class, 'createBackup'])->name('backups.create');
-    Route::post('/settings/backup/{id}/restore', [BackupController::class, 'restore'])->name('backups.restore');
-    Route::get('/settings/backup/{id}/download', [BackupController::class, 'download'])->name('backups.download');
+    // System Backups (Strictly Super Admin / Executive Director)
+    Route::middleware(['role:admin,director'])->group(function () {
+        Route::get('/settings/backup', [BackupController::class, 'index'])->name('backups.index');
+        Route::post('/settings/backup/create', [BackupController::class, 'createBackup'])->name('backups.create');
+        Route::post('/settings/backup/{id}/restore', [BackupController::class, 'restore'])->name('backups.restore');
+        Route::get('/settings/backup/{id}/download', [BackupController::class, 'download'])->name('backups.download');
+    });
 });

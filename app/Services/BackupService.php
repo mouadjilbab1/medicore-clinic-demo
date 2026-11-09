@@ -19,10 +19,11 @@ class BackupService
         }
 
         $timestamp = date('Y-m-d_H-i-s');
-        $driver = config('database.default');
+        $connectionName = config('database.default');
+        $driver = config("database.connections.{$connectionName}.driver", $connectionName);
 
         if ($driver === 'sqlite') {
-            $sourceFile = config('database.connections.sqlite.database');
+            $sourceFile = config("database.connections.{$connectionName}.database");
             $filename = "medicore_backup_{$timestamp}.sqlite";
             $targetPath = "{$backupDir}/{$filename}";
 
@@ -36,11 +37,11 @@ class BackupService
                 throw new \Exception("SQLite source database file does not exist.");
             }
         } else {
-            // MySQL dump fallback or SQL statement export
+            // MySQL dump or SQL statement export
             $filename = "medicore_backup_{$timestamp}.sql";
             $targetPath = "{$backupDir}/{$filename}";
             
-            $tables = DB::select('SHOW TABLES');
+            $tables = DB::connection($connectionName)->select('SHOW TABLES');
             $sqlDump = "-- MediCore Clinic Database Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n\n";
 
             File::put($targetPath, $sqlDump);
@@ -75,15 +76,16 @@ class BackupService
             throw new \InvalidArgumentException("Backup archive is corrupted or has an invalid header.");
         }
 
-        $driver = config('database.default');
+        $connectionName = config('database.default');
+        $driver = config("database.connections.{$connectionName}.driver", $connectionName);
 
         if ($driver === 'sqlite') {
-            $dest = config('database.connections.sqlite.database');
+            $dest = config("database.connections.{$connectionName}.database");
             if ($dest !== ':memory:') {
                 File::copy($filePath, $dest);
             }
         } else {
-            DB::unprepared($content);
+            DB::connection($connectionName)->unprepared($content);
         }
 
         return true;

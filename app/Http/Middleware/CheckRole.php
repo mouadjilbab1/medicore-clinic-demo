@@ -21,11 +21,7 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        if (in_array('admin', $roles) && $user->role === 'admin') {
-            return $next($request);
-        }
-
-        if (in_array($user->role, $roles)) {
+        if (in_array($user->role, ['admin', 'director']) || in_array($user->role, $roles)) {
             return $next($request);
         }
 
