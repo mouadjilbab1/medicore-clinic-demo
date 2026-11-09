@@ -144,4 +144,75 @@ class BillingAndPaymentTest extends TestCase
         $this->assertEquals(0.00, $invoice->balance_due);
         $this->assertEquals('paid', $invoice->status);
     }
+
+    public function test_invoice_creation_via_http_endpoint_with_discounts_and_taxes(): void
+    {
+        $this->actingAs($this->cashier);
+
+        $response = $this->post(route('billing.store'), [
+            'patient_id' => $this->patient->id,
+            'items' => [
+                [
+                    'item_name' => 'Dental Root Canal Therapy',
+                    'item_type' => 'dental',
+                    'quantity' => 1,
+                    'unit_price' => 500.00,
+                    'discount' => 50.00, // $450 net
+                    'tax_rate' => 10,    // +$45 tax -> $495
+                ],
+            ],
+            'notes' => 'Endodontic procedure under local anesthesia',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('invoices', [
+            'patient_id' => $this->patient->id,
+            'subtotal' => 500.00,
+            'discount_amount' => 50.00,
+            'tax_amount' => 45.00,
+            'total_amount' => 495.00,
+            'balance_due' => 495.00,
+            'status' => 'unpaid',
+        ]);
+    }
+
+    public function test_cash_register_closing_and_discrepancy_calculation(): void
+    {
+        $this->actingAs($this->cashier);
+
+        // Record a cash payment today
+        $invoice = Invoice::create([
+            'branch_id' => 1,
+            'patient_id' => $this->patient->id,
+            'invoice_number' => $this->billingService->generateInvoiceNumber(),
+            'invoice_date' => now()->toDateString(),
+            'subtotal' => 150.00,
+            'discount_amount' => 0.00,
+            'tax_amount' => 0.00,
+            'total_amount' => 150.00,
+            'paid_amount' => 0.00,
+            'balance_due' => 150.00,
+            'status' => 'unpaid',
+            'created_by' => $this->cashier->id,
+        ]);
+
+        $this->billingService->recordPayment($invoice->id, 150.00, 'cash', null, $this->cashier->id);
+
+        // Close register with $140 counted ($10 shortage)
+        $response = $this->post(route('financial.close-register'), [
+            'physical_cash_counted' => 140.00,
+            'notes' => 'Evening register tally',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('cash_registers', [
+            'opened_by' => $this->cashier->id,
+            'physical_cash_counted' => 140.00,
+            'system_cash_total' => 150.00,
+            'discrepancy' => -10.00,
+            'status' => 'closed',
+        ]);
+    }
 }

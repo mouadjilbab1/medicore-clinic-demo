@@ -245,4 +245,26 @@ class PatientController extends Controller
         return redirect()->route('patients.show', $request->input('target_patient_id'))
             ->with('success', 'Duplicate patient records successfully merged with audit trail.');
     }
+
+    public function destroy(Request $request, int $id): RedirectResponse
+    {
+        $patient = Patient::findOrFail($id);
+        $old = $patient->toArray();
+        $patient->update(['is_active' => false]);
+        $patient->delete();
+
+        AuditLog::create([
+            'user_id' => $request->user()?->id,
+            'action' => 'deleted',
+            'auditable_type' => Patient::class,
+            'auditable_id' => $patient->id,
+            'old_values' => $old,
+            'new_values' => ['is_active' => false, 'deleted_at' => now()->toIso8601String()],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('patients.index')
+            ->with('success', "Patient record #{$patient->patient_uid} archived successfully.");
+    }
 }

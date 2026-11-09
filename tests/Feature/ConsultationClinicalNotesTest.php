@@ -174,4 +174,94 @@ class ConsultationClinicalNotesTest extends TestCase
         $consultation->refresh();
         $this->assertEquals('Rest, lozenges, and Amoxicillin 500mg TID for 10 days', $consultation->treatment_plan);
     }
+
+    public function test_dermatology_lesion_record_creation(): void
+    {
+        $this->actingAs($this->doctorUser);
+
+        $consultation = Consultation::create([
+            'branch_id' => 1,
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
+            'consultation_date' => now(),
+            'chief_complaint' => 'Skin rash on upper back',
+            'is_finalized' => false,
+        ]);
+
+        $response = $this->post(route('consultations.dermatology', $consultation->id), [
+            'body_location_key' => 'back',
+            'condition_type' => 'Psoriasis plaque',
+            'lesion_description' => 'Erythematous scaly plaque with silver scales, 3cm diameter',
+            'session_number' => 1,
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('dermatology_records', [
+            'consultation_id' => $consultation->id,
+            'patient_id' => $this->patient->id,
+            'body_location_key' => 'back',
+            'condition_type' => 'Psoriasis plaque',
+        ]);
+    }
+
+    public function test_pediatric_growth_record_creation_with_percentiles(): void
+    {
+        $this->actingAs($this->doctorUser);
+
+        $consultation = Consultation::create([
+            'branch_id' => 1,
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
+            'consultation_date' => now(),
+            'chief_complaint' => '12-month well-child examination',
+            'is_finalized' => false,
+        ]);
+
+        $response = $this->post(route('consultations.pediatrics', $consultation->id), [
+            'age_months' => 12,
+            'height_cm' => 76.0,
+            'weight_kg' => 10.2,
+            'head_circumference_cm' => 46.5,
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('pediatric_growth_records', [
+            'consultation_id' => $consultation->id,
+            'patient_id' => $this->patient->id,
+            'age_months' => 12,
+        ]);
+    }
+
+    public function test_physiotherapy_session_record_creation(): void
+    {
+        $this->actingAs($this->doctorUser);
+
+        $consultation = Consultation::create([
+            'branch_id' => 1,
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
+            'consultation_date' => now(),
+            'chief_complaint' => 'Post-op ACL reconstruction rehabilitation',
+            'is_finalized' => false,
+        ]);
+
+        $response = $this->post(route('consultations.physiotherapy', $consultation->id), [
+            'pain_vas_score' => 4,
+            'joint_assessed' => 'Left Knee',
+            'rom_measurement' => 'Flexion 95 deg, Extension 0 deg',
+            'mobility_score' => 'Partial weight-bearing with crutches',
+            'exercises_prescribed' => 'Quad sets, straight leg raises, patellar mobilizations',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('physiotherapy_sessions', [
+            'consultation_id' => $consultation->id,
+            'patient_id' => $this->patient->id,
+            'joint_assessed' => 'Left Knee',
+            'pain_vas_score' => 4,
+        ]);
+    }
 }

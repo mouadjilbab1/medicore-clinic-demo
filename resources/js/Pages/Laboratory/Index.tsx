@@ -77,14 +77,7 @@ export default function LaboratoryIndex({ requests, patients, doctors }: Props) 
         if (!selectedRequest) return;
         resultForm.post(route('lab.results.add', selectedRequest.id), {
             onSuccess: () => {
-                resultForm.reset({
-                    parameter_name: '',
-                    result_value: '',
-                    unit: '',
-                    reference_range: '',
-                    is_abnormal: false,
-                    remarks: '',
-                });
+                resultForm.reset();
             },
         });
     };

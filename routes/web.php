@@ -74,6 +74,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/consultations/{id}/diagnoses', [ConsultationController::class, 'addDiagnosis'])->name('consultations.diagnoses');
     Route::post('/consultations/{id}/sign', [ConsultationController::class, 'signAndFinalize'])->name('consultations.sign');
     Route::post('/consultations/{id}/revisions', [ConsultationController::class, 'addRevision'])->name('consultations.revisions');
+    Route::post('/consultations/{id}/dermatology', [ConsultationController::class, 'addDermatology'])->name('consultations.dermatology');
+    Route::post('/consultations/{id}/pediatrics', [ConsultationController::class, 'addPediatricGrowth'])->name('consultations.pediatrics');
+    Route::post('/consultations/{id}/physiotherapy', [ConsultationController::class, 'addPhysiotherapy'])->name('consultations.physiotherapy');
 
     // Specialties - Dental FDI Odontogram
     Route::get('/specialties/dental', [DentalController::class, 'index'])->name('dental.index');
@@ -125,7 +128,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
 
     // Backups
-    Route::get('/settings/backup', [BackupController::class, 'index'])->name('backup.index');
-    Route::post('/settings/backup/create', [BackupController::class, 'createBackup'])->name('backup.create');
-    Route::get('/settings/backup/{id}/download', [BackupController::class, 'download'])->name('backup.download');
+    Route::get('/settings/backup', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('/settings/backup/create', [BackupController::class, 'createBackup'])->name('backups.create');
+    Route::post('/settings/backup/{id}/restore', [BackupController::class, 'restore'])->name('backups.restore');
+    Route::get('/settings/backup/{id}/download', [BackupController::class, 'download'])->name('backups.download');
 });

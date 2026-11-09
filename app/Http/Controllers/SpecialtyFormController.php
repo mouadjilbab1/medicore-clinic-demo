@@ -74,12 +74,32 @@ class SpecialtyFormController extends Controller
 
         $request->validate([
             'patient_id' => ['required', 'exists:patients,id'],
+            'consultation_id' => ['nullable', 'exists:consultations,id'],
             'responses' => ['required', 'array'],
         ]);
 
+        $consultationId = $request->input('consultation_id');
+        if (!$consultationId || !\App\Models\Consultation::where('id', $consultationId)->exists()) {
+            $firstConsultation = \App\Models\Consultation::where('patient_id', $request->input('patient_id'))->first();
+            if ($firstConsultation) {
+                $consultationId = $firstConsultation->id;
+            } else {
+                $doctor = \App\Models\Doctor::first();
+                $newEncounter = \App\Models\Consultation::create([
+                    'branch_id' => $request->user()?->branch_id ?? 1,
+                    'patient_id' => $request->input('patient_id'),
+                    'doctor_id' => $doctor?->id ?? 1,
+                    'consultation_date' => now(),
+                    'chief_complaint' => "Specialty Intake: {$form->name}",
+                    'is_finalized' => false,
+                ]);
+                $consultationId = $newEncounter->id;
+            }
+        }
+
         SpecialtyFormResponse::create([
             'form_id' => $form->id,
-            'consultation_id' => 1, // Fallback demo encounter or active encounter
+            'consultation_id' => $consultationId,
             'patient_id' => $request->input('patient_id'),
             'responses' => $request->input('responses'),
         ]);

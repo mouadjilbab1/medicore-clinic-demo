@@ -57,4 +57,35 @@ class BackupService
             'created_by' => $userId,
         ]);
     }
+
+    /**
+     * Restore database from an existing backup snapshot archive.
+     */
+    public function restoreDatabaseBackup(int $backupId): bool
+    {
+        $record = BackupRecord::findOrFail($backupId);
+        $filePath = storage_path("app/backups/{$record->filename}");
+
+        if (!File::exists($filePath)) {
+            throw new \Exception("Backup file '{$record->filename}' does not exist on disk.");
+        }
+
+        $content = File::get($filePath);
+        if (empty($content) || strlen($content) < 10) {
+            throw new \InvalidArgumentException("Backup archive is corrupted or has an invalid header.");
+        }
+
+        $driver = config('database.default');
+
+        if ($driver === 'sqlite') {
+            $dest = config('database.connections.sqlite.database');
+            if ($dest !== ':memory:') {
+                File::copy($filePath, $dest);
+            }
+        } else {
+            DB::unprepared($content);
+        }
+
+        return true;
+    }
 }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslation } from '@/Utils/translations';
-import { Database, Download, ShieldCheck, Clock, CheckCircle2, HardDrive, RefreshCw, FileArchive, AlertTriangle } from 'lucide-react';
+import { Database, Download, ShieldCheck, Clock, CheckCircle2, HardDrive, RefreshCw, FileArchive, AlertTriangle, RotateCcw } from 'lucide-react';
 import { BackupRecord } from '@/types';
 
 interface Props {
@@ -125,7 +125,7 @@ export default function BackupIndex({ backups }: Props) {
                                                 </div>
                                             </td>
                                             <td className="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-300">
-                                                {formatBytes(b.size_bytes)}
+                                                {formatBytes(b.size_bytes || b.file_size || 0)}
                                             </td>
                                             <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
                                                 {new Date(b.created_at).toLocaleString()}
@@ -139,13 +139,27 @@ export default function BackupIndex({ backups }: Props) {
                                                 </span>
                                             </td>
                                             <td className="py-3.5 px-4 text-right">
-                                                <a
-                                                    href={route('backups.download', b.id)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-all"
-                                                >
-                                                    <Download className="w-3.5 h-3.5" />
-                                                    Download
-                                                </a>
+                                                <div className="inline-flex items-center gap-2">
+                                                    <a
+                                                        href={route('backups.download', b.id)}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition-all"
+                                                    >
+                                                        <Download className="w-3.5 h-3.5" />
+                                                        Download
+                                                    </a>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (confirm(`CAUTION: Restoring database snapshot '${b.filename}' will roll back any subsequent entries. Proceed?`)) {
+                                                                router.post(route('backups.restore', b.id));
+                                                            }
+                                                        }}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 rounded-lg text-xs font-semibold transition-all"
+                                                    >
+                                                        <RotateCcw className="w-3.5 h-3.5" />
+                                                        Restore
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

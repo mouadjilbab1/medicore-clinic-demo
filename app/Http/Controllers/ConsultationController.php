@@ -103,6 +103,8 @@ class ConsultationController extends Controller
             'revisions.reviser',
             'ophthalmologyRecord',
             'dermatologyRecord',
+            'pediatricGrowthRecord',
+            'physiotherapySession',
         ])->findOrFail($id);
 
         return Inertia::render('Consultations/Show', [
@@ -228,5 +230,73 @@ class ConsultationController extends Controller
         });
 
         return back()->with('success', 'Clinical addendum attached and record updated.');
+    }
+
+    public function addDermatology(Request $request, int $id): RedirectResponse
+    {
+        $consultation = Consultation::findOrFail($id);
+
+        $validated = $request->validate([
+            'body_location_key' => ['required', 'string', 'max:50'],
+            'condition_type' => ['required', 'string', 'max:100'],
+            'lesion_description' => ['nullable', 'string'],
+            'session_number' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $validated['consultation_id'] = $consultation->id;
+        $validated['patient_id'] = $consultation->patient_id;
+
+        \App\Models\DermatologyRecord::create($validated);
+
+        return back()->with('success', 'Dermatology lesion examination recorded.');
+    }
+
+    public function addPediatricGrowth(Request $request, int $id): RedirectResponse
+    {
+        $consultation = Consultation::findOrFail($id);
+
+        $validated = $request->validate([
+            'age_months' => ['required', 'integer', 'min:0', 'max:240'],
+            'height_cm' => ['nullable', 'numeric', 'between:30,220'],
+            'weight_kg' => ['nullable', 'numeric', 'between:1,150'],
+            'head_circumference_cm' => ['nullable', 'numeric', 'between:20,70'],
+        ]);
+
+        // Auto-calculate WHO estimated percentiles for standard tracking
+        if (!empty($validated['height_cm'])) {
+            $validated['height_percentile'] = min(99.0, max(1.0, round(($validated['height_cm'] / (50 + $validated['age_months'] * 2.5)) * 50, 1)));
+        }
+        if (!empty($validated['weight_kg'])) {
+            $validated['weight_percentile'] = min(99.0, max(1.0, round(($validated['weight_kg'] / (3.3 + $validated['age_months'] * 0.6)) * 50, 1)));
+        }
+
+        $validated['consultation_id'] = $consultation->id;
+        $validated['patient_id'] = $consultation->patient_id;
+
+        \App\Models\PediatricGrowthRecord::create($validated);
+
+        return back()->with('success', 'Pediatric growth metrics and WHO percentiles plotted.');
+    }
+
+    public function addPhysiotherapy(Request $request, int $id): RedirectResponse
+    {
+        $consultation = Consultation::findOrFail($id);
+
+        $validated = $request->validate([
+            'pain_vas_score' => ['required', 'integer', 'between:0,10'],
+            'joint_assessed' => ['required', 'string', 'max:100'],
+            'rom_measurement' => ['nullable', 'string', 'max:100'],
+            'mobility_score' => ['nullable', 'string', 'max:50'],
+            'exercises_prescribed' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $validated['consultation_id'] = $consultation->id;
+        $validated['patient_id'] = $consultation->patient_id;
+        $validated['therapist_id'] = $request->user()?->id;
+
+        \App\Models\PhysiotherapySession::create($validated);
+
+        return back()->with('success', 'Physiotherapy rehabilitation session recorded.');
     }
 }

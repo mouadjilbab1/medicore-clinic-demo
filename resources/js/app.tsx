@@ -1,4 +1,3 @@
-import './bootstrap';
 import '../css/app.css';
 
 import { createRoot } from 'react-dom/client';
@@ -13,10 +12,12 @@ createInertiaApp({
         resolvePageComponent(
             `./Pages/${name}.tsx`,
             import.meta.glob('./Pages/**/*.tsx')
-        ),
+        ) as any,
     setup({ el, App, props }) {
-        const root = createRoot(el);
-        root.render(<App {...props} />);
+        if (el) {
+            const root = createRoot(el);
+            root.render(<App {...props} />);
+        }
     },
     progress: {
         color: '#0d9488',

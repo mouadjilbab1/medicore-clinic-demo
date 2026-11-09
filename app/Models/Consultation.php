@@ -97,4 +97,14 @@ class Consultation extends Model
     {
         return $this->hasOne(DermatologyRecord::class);
     }
+
+    public function pediatricGrowthRecord(): HasOne
+    {
+        return $this->hasOne(PediatricGrowthRecord::class);
+    }
+
+    public function physiotherapySession(): HasOne
+    {
+        return $this->hasOne(PhysiotherapySession::class);
+    }
 }

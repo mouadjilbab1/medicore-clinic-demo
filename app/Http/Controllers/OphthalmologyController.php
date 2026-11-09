@@ -51,9 +51,13 @@ class OphthalmologyController extends Controller
         ]);
 
         if (empty($validated['consultation_id'])) {
+            $eyeDoctor = \App\Models\Doctor::where('specialty', 'ophthalmology')->first() 
+                ?? \App\Models\Doctor::first();
+
             $consultation = Consultation::create([
+                'branch_id' => $request->user()?->branch_id ?? 1,
                 'patient_id' => $validated['patient_id'],
-                'doctor_id' => 3, // Ophthalmology specialist
+                'doctor_id' => $eyeDoctor?->id ?? 1,
                 'consultation_date' => now(),
                 'chief_complaint' => 'Ophthalmology Visual Acuity & Refraction Exam',
                 'is_finalized' => true,

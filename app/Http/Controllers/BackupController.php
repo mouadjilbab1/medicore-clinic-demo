@@ -46,4 +46,16 @@ class BackupController extends Controller
 
         return response()->download($filePath, $record->filename);
     }
+
+    public function restore(Request $request, int $id): RedirectResponse
+    {
+        try {
+            $this->backupService->restoreDatabaseBackup($id);
+            return back()->with('success', 'Database successfully restored from snapshot archive.');
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', "Restore rejected: " . $e->getMessage());
+        } catch (\Exception $e) {
+            return back()->with('error', "Restore failed: " . $e->getMessage());
+        }
+    }
 }

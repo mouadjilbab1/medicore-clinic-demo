@@ -27,6 +27,9 @@ interface Props {
         diagnoses: any[];
         prescriptions: any[];
         revisions: any[];
+        dermatologyRecord?: any;
+        pediatricGrowthRecord?: any;
+        physiotherapySession?: any;
     };
 }
 
@@ -35,6 +38,9 @@ export default function ConsultationsShow({ consultation }: Props) {
     const [vitalsModalOpen, setVitalsModalOpen] = useState(false);
     const [diagnosisModalOpen, setDiagnosisModalOpen] = useState(false);
     const [revisionModalOpen, setRevisionModalOpen] = useState(false);
+    const [dermModalOpen, setDermModalOpen] = useState(false);
+    const [pediatricModalOpen, setPediatricModalOpen] = useState(false);
+    const [physioModalOpen, setPhysioModalOpen] = useState(false);
 
     // Vitals Form
     const vitalsForm = useForm({
@@ -46,6 +52,32 @@ export default function ConsultationsShow({ consultation }: Props) {
         oxygen_saturation: '',
         weight: '',
         height: '',
+    });
+
+    // Dermatology Form
+    const dermForm = useForm({
+        body_location_key: 'face',
+        condition_type: '',
+        lesion_description: '',
+        session_number: 1,
+    });
+
+    // Pediatric Growth Form
+    const pediatricForm = useForm({
+        age_months: 12,
+        height_cm: '',
+        weight_kg: '',
+        head_circumference_cm: '',
+    });
+
+    // Physiotherapy Form
+    const physioForm = useForm({
+        pain_vas_score: 3,
+        joint_assessed: '',
+        rom_measurement: '',
+        mobility_score: 'Moderate',
+        exercises_prescribed: '',
+        notes: '',
     });
 
     // Diagnosis Form
@@ -93,6 +125,36 @@ export default function ConsultationsShow({ consultation }: Props) {
             onSuccess: () => {
                 setRevisionModalOpen(false);
                 revForm.reset();
+            },
+        });
+    };
+
+    const handleDermSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        dermForm.post(route('consultations.dermatology', consultation.id), {
+            onSuccess: () => {
+                setDermModalOpen(false);
+                dermForm.reset();
+            },
+        });
+    };
+
+    const handlePediatricSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        pediatricForm.post(route('consultations.pediatrics', consultation.id), {
+            onSuccess: () => {
+                setPediatricModalOpen(false);
+                pediatricForm.reset();
+            },
+        });
+    };
+
+    const handlePhysioSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        physioForm.post(route('consultations.physiotherapy', consultation.id), {
+            onSuccess: () => {
+                setPhysioModalOpen(false);
+                physioForm.reset();
             },
         });
     };
@@ -350,6 +412,76 @@ export default function ConsultationsShow({ consultation }: Props) {
                         </div>
                     )}
 
+                    {/* Integrated Specialty Clinical Records */}
+                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <span className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">
+                                Integrated Specialty Clinical Records
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setDermModalOpen(true)}
+                                    className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-[11px] flex items-center gap-1 transition-all"
+                                >
+                                    <Plus className="w-3 h-3" />
+                                    Dermatology
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPediatricModalOpen(true)}
+                                    className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 font-semibold text-[11px] flex items-center gap-1 transition-all"
+                                >
+                                    <Plus className="w-3 h-3" />
+                                    Pediatrics (WHO)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPhysioModalOpen(true)}
+                                    className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold text-[11px] flex items-center gap-1 transition-all"
+                                >
+                                    <Plus className="w-3 h-3" />
+                                    Physiotherapy
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Display existing specialty records */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {consultation.dermatologyRecord && (
+                                <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-200">
+                                    <span className="font-bold text-[10px] text-rose-800 uppercase block">Dermatology Finding</span>
+                                    <div className="font-semibold text-slate-800 mt-1">{consultation.dermatologyRecord.condition_type}</div>
+                                    <div className="text-[11px] text-slate-500">Location: {consultation.dermatologyRecord.body_location_key}</div>
+                                    {consultation.dermatologyRecord.lesion_description && (
+                                        <div className="text-[11px] text-slate-600 mt-1">{consultation.dermatologyRecord.lesion_description}</div>
+                                    )}
+                                </div>
+                            )}
+
+                            {consultation.pediatricGrowthRecord && (
+                                <div className="p-3 rounded-xl bg-sky-50/50 border border-sky-200">
+                                    <span className="font-bold text-[10px] text-sky-800 uppercase block">Pediatric Growth (WHO)</span>
+                                    <div className="font-semibold text-slate-800 mt-1">Age: {consultation.pediatricGrowthRecord.age_months} mo</div>
+                                    <div className="text-[11px] text-slate-600">
+                                        Ht: {consultation.pediatricGrowthRecord.height_cm} cm (P{consultation.pediatricGrowthRecord.height_percentile}%) • 
+                                        Wt: {consultation.pediatricGrowthRecord.weight_kg} kg (P{consultation.pediatricGrowthRecord.weight_percentile}%)
+                                    </div>
+                                </div>
+                            )}
+
+                            {consultation.physiotherapySession && (
+                                <div className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200">
+                                    <span className="font-bold text-[10px] text-emerald-800 uppercase block">Physiotherapy Rehab</span>
+                                    <div className="font-semibold text-slate-800 mt-1">VAS Pain: {consultation.physiotherapySession.pain_vas_score}/10</div>
+                                    <div className="text-[11px] text-slate-600">
+                                        Joint: {consultation.physiotherapySession.joint_assessed} • ROM: {consultation.physiotherapySession.rom_measurement || 'Normal'}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Addendum & Revision Audit History */}
                     {consultation.revisions && consultation.revisions.length > 0 && (
                         <div className="pt-4 border-t border-slate-100">
@@ -585,6 +717,236 @@ export default function ConsultationsShow({ consultation }: Props) {
                                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl"
                                 >
                                     Attach Addendum
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Dermatology Record Modal */}
+            {dermModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+                        <h3 className="font-bold text-slate-900 text-base mb-3">Record Dermatology Lesion</h3>
+                        <form onSubmit={handleDermSubmit} className="space-y-3 text-xs">
+                            <div>
+                                <label className="block font-semibold text-slate-700 mb-1">Body Anatomical Location *</label>
+                                <select
+                                    value={dermForm.data.body_location_key}
+                                    onChange={(e) => dermForm.setData('body_location_key', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-xl"
+                                >
+                                    <option value="face">Face / Head</option>
+                                    <option value="scalp">Scalp</option>
+                                    <option value="neck">Neck</option>
+                                    <option value="chest">Anterior Chest</option>
+                                    <option value="back">Upper / Lower Back</option>
+                                    <option value="arms">Arms / Hands</option>
+                                    <option value="legs">Legs / Feet</option>
+                                    <option value="abdomen">Abdomen</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block font-semibold text-slate-700 mb-1">Condition / Lesion Type *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. Atypical pigmented macule, Eczema plaque"
+                                    value={dermForm.data.condition_type}
+                                    onChange={(e) => dermForm.setData('condition_type', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-xl"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block font-semibold text-slate-700 mb-1">Lesion Characteristics / Dermoscopy</label>
+                                <textarea
+                                    rows={3}
+                                    placeholder="Enter diameter, symmetry, borders, color variation, ABCDE criteria..."
+                                    value={dermForm.data.lesion_description}
+                                    onChange={(e) => dermForm.setData('lesion_description', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-xl"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setDermModalOpen(false)}
+                                    className="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={dermForm.processing}
+                                    className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl"
+                                >
+                                    Save Dermatology Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Pediatrics Growth Record Modal */}
+            {pediatricModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+                        <h3 className="font-bold text-slate-900 text-base mb-3">Record Pediatric Growth Metrics (WHO)</h3>
+                        <form onSubmit={handlePediatricSubmit} className="space-y-3 text-xs">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Age (Months) *</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="0"
+                                        max="240"
+                                        value={pediatricForm.data.age_months}
+                                        onChange={(e) => pediatricForm.setData('age_months', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Height (cm)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        placeholder="e.g. 75.5"
+                                        value={pediatricForm.data.height_cm}
+                                        onChange={(e) => pediatricForm.setData('height_cm', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Weight (kg)</label>
+                                    <input
+                                        type="number"
+                                        step="0.05"
+                                        placeholder="e.g. 10.2"
+                                        value={pediatricForm.data.weight_kg}
+                                        onChange={(e) => pediatricForm.setData('weight_kg', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Head Circ. (cm)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        placeholder="e.g. 46.0"
+                                        value={pediatricForm.data.head_circumference_cm}
+                                        onChange={(e) => pediatricForm.setData('head_circumference_cm', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setPediatricModalOpen(false)}
+                                    className="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={pediatricForm.processing}
+                                    className="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-xl"
+                                >
+                                    Save Growth Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Physiotherapy Session Modal */}
+            {physioModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+                        <h3 className="font-bold text-slate-900 text-base mb-3">Record Physiotherapy Session</h3>
+                        <form onSubmit={handlePhysioSubmit} className="space-y-3 text-xs">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Pain VAS Score (0-10)</label>
+                                    <select
+                                        value={physioForm.data.pain_vas_score}
+                                        onChange={(e) => physioForm.setData('pain_vas_score', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl font-bold"
+                                    >
+                                        {[0,1,2,3,4,5,6,7,8,9,10].map(s => (
+                                            <option key={s} value={s}>{s} - {s === 0 ? 'No Pain' : s <= 3 ? 'Mild' : s <= 6 ? 'Moderate' : 'Severe'}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Joint / Region *</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="e.g. Left Knee, Lumbar"
+                                        value={physioForm.data.joint_assessed}
+                                        onChange={(e) => physioForm.setData('joint_assessed', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">ROM Assessment</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Flexion 110°, Ext 0°"
+                                        value={physioForm.data.rom_measurement}
+                                        onChange={(e) => physioForm.setData('rom_measurement', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-slate-700 mb-1">Mobility Index</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Weight-bearing, Cane"
+                                        value={physioForm.data.mobility_score}
+                                        onChange={(e) => physioForm.setData('mobility_score', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-xl"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block font-semibold text-slate-700 mb-1">Prescribed Rehab Exercises</label>
+                                <textarea
+                                    rows={2}
+                                    placeholder="e.g. Quadriceps sets, straight leg raises, passive hamstring stretch 3x10..."
+                                    value={physioForm.data.exercises_prescribed}
+                                    onChange={(e) => physioForm.setData('exercises_prescribed', e.target.value)}
+                                    className="w-full p-2 border border-slate-300 rounded-xl"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setPhysioModalOpen(false)}
+                                    className="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={physioForm.processing}
+                                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl"
+                                >
+                                    Save Rehab Session
                                 </button>
                             </div>
                         </form>

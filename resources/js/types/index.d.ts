@@ -62,6 +62,8 @@ export interface Patient {
     patient_uid: string;
     first_name: string;
     last_name: string;
+    full_name?: string;
+    age?: number;
     gender: 'male' | 'female' | 'other';
     date_of_birth: string;
     blood_group?: string;
@@ -234,14 +236,36 @@ export interface Consultation {
     created_at: string;
 }
 
+export interface Department {
+    id: number;
+    clinic_id: number;
+    name: string;
+    description?: string;
+    is_active: boolean;
+}
+
+export interface BackupRecord {
+    id: number;
+    filename: string;
+    disk: string;
+    file_size: number;
+    size_bytes?: number;
+    backup_type: string;
+    status: string;
+    notes?: string;
+    created_at: string;
+    creator?: { name: string };
+}
+
 export interface PrescriptionItem {
     id?: number;
-    medicine_name: string;
+    medicine_name?: string;
+    medication_name?: string;
     dosage: string;
     frequency: string;
     duration: string;
     route: string;
-    quantity: number;
+    quantity?: number;
     instructions?: string;
 }
 
@@ -333,4 +357,8 @@ export interface PaginatedData<T> {
     total: number;
     from: number;
     to: number;
+}
+
+declare global {
+    function route(name?: string, params?: any): any;
 }
