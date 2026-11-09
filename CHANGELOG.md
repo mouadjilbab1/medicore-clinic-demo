@@ -9,29 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ### [1.0.0] - 2026-11-09
-#### Added
-- Complete Enterprise Architecture and Documentation Suite (`PROJECT_MASTER_PLAN.md`, `PRODUCT_REQUIREMENTS.md`, `SYSTEM_ARCHITECTURE.md`, `DATABASE_DESIGN.md`, `SECURITY_PLAN.md`, `API_SPECIFICATION.md`, `IMPLEMENTATION_ROADMAP.md`, `TESTING_STRATEGY.md`, `DEPLOYMENT_GUIDE.md`).
-- Multi-branch relational database schema supporting organizations, branches, clinics, departments, rooms, and users.
-- Role-based Access Control (RBAC) with 14 distinct roles (Admin, Doctor, Dentist, Nurse, Receptionist, Cashier, Pharmacist, Lab Tech, Imaging Tech, Patient, etc.).
-- Patient Management engine with Unique Patient UID, demographic registry, emergency contacts, allergy matrix, duplicate detection, and merging.
-- Smart Appointment Scheduling engine with calendar views (Day, Week, Month, Doctor resource grid) and strict double-booking conflict prevention.
-- Waiting Room Live Queue system with sequential ticketing, urgency triage tags, and doctor calling dashboard.
-- Electronic Medical Records (EMR) with Chief Complaint, HPI, Physical Exam, Vital Signs, ICD-10 diagnostic library, and doctor digital signature lock.
-- Specialty Clinical Modules:
+#### Commercial Release Candidate & Production Certification
+- **Complete Enterprise Architecture & Documentation Suite:** Comprehensive technical manuals, API guides, deployment runbooks, and legal license agreements.
+- **Multi-Branch Relational Database Schema:** 46 tables with full MySQL 8.0 (InnoDB) and SQLite compatibility, foreign key cascading, and optimized composite indexes.
+- **Strict Role-Based Access Control (RBAC):** HTTP-level boundary security enforcing 13 roles (`admin`, `director`, `manager`, `doctor`, `dentist`, `nurse`, `receptionist`, `accountant`, `pharmacist`, `lab_tech`, `imaging_tech`, `inventory_mgr`, `patient`). Receptionists and cashiers strictly barred from medical notes with HTTP 403 Forbidden.
+- **Patient Management Engine:** Demographic intake, unique `PAT-YYYY-XXXX` identifiers, allergy alerts, duplicate detection, and audited record merging.
+- **Smart Appointment Scheduling Engine:** Conflict detection for overlapping doctor schedules, operatory room collisions, and approved leaves.
+- **Waiting Room Live Queue System:** Sequential daily ticketing, triage prioritization (normal, urgent, emergency, special needs), operatory calling, and public display screen.
+- **Electronic Medical Records (EMR):** Comprehensive encounter charting, chief complaints, physical examinations, vital signs with automated BMI calculation, ICD-10 diagnostic coding, and digital signature lock preventing in-place alteration.
+- **Specialty Clinical Modules:**
   - Interactive FDI 2-digit Dental Odontogram with 5 tooth surfaces and multi-stage treatment planning.
-  - Ophthalmology Examination with OD/OS visual acuity, refraction parameters, IOP, and glasses prescription.
-  - Dermatology Lesion Canvas with anatomical mapping and photo comparison.
-  - Cardiology Diagnostic Center with BP, ECG, and echocardiogram notes.
-  - Pediatrics Growth Chart with WHO percentile calculations and immunization schedule.
-  - Physiotherapy Module with VAS Pain Scale, ROM tracking, and exercise regimens.
-  - Dynamic Specialty Form Builder supporting custom clinical branches with JSON schema definitions.
-- Prescription Management with drug frequency, dosage, route, duration, and printable PDF prescription generator.
-- Medical Document Generator for Sick Leave Certificates, Referrals, and Fitness Certificates.
-- Invoicing, Cashier & Financial Management supporting itemized charges, partial payments, split payment methods, refunds, and daily cash closing reconciliation.
-- Inventory & Pharmacy Control with SKU barcodes, batch expiry tracking, and low-stock threshold alerts.
-- Laboratory & Diagnostic Imaging hubs with normal reference ranges and workflow sign-offs.
-- Staff & HR Management with attendance records and leave tracking.
-- Dedicated Secure Patient Portal for online appointment booking and document downloads.
-- 8-Step First-Time Web Installation Wizard with environment verification, migration execution, and setup locking.
-- Database and file vault backup & restore system.
-- Full trilingual support: Arabic (with native RTL), French (LTR), and English (LTR).
+  - Ophthalmology Examination with OD/OS visual acuity, refraction parameters, IOP, and optical prescriptions.
+  - Dermatology lesion tracking with anatomical mapping.
+  - Pediatrics growth charts with WHO percentiles scoring.
+  - Physiotherapy module with VAS pain scale and ROM tracking.
+  - Dynamic Specialty Form Builder supporting custom intake templates.
+- **Prescription Management:** Structured medication administration, dosages, frequencies, and clean printable prescription layouts.
+- **Revenue Cycle Management:** Commercial invoicing, multi-method payments, partial payment tracking, receipts generation, and daily cash register closing with discrepancy auditing.
+- **Patient Self-Service Portal:** Strictly isolated portal allowing patients to securely request appointments and view their personal prescriptions and invoices.
+- **Disaster Recovery Subsystem:** Built-in atomic database snapshot creation and 100% data fidelity restoration.
+- **First-Time Web Installation Wizard (`/install`):** Safe 3-step setup wizard with requirements verification, database connection testing, and permanent deployment lock file (`storage/installed`).
+- **Trilingual Localization:** Arabic (native RTL), English (LTR), and French (LTR).
