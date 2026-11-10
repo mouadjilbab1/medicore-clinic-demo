@@ -1,0 +1,378 @@
+[
+    {
+        "domain": "Patient Management",
+        "name": "Create Patient with UID",
+        "status": "PASS",
+        "evidence": "Patient #1 created with UID PAT-2026-0001",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "View Patient Profile",
+        "status": "PASS",
+        "evidence": "HTTP 200 OK \u2014 Chart retrieved for Tariq Mansour",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "Update Patient Details",
+        "status": "PASS",
+        "evidence": "Updated phone to +212699887766 and saved medical notes",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "Search Patient by CIN\/Phone",
+        "status": "PASS",
+        "evidence": "HTTP 200 OK \u2014 Search query filtered accurately",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "Validation Error Prevention",
+        "status": "PASS",
+        "evidence": "HTTP 302 redirect with validation errors caught; invalid data rejected",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "Soft Delete & Archival",
+        "status": "PASS",
+        "evidence": "Patient #2 marked inactive with soft delete timestamp",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Patient Management",
+        "name": "Restore Soft-Deleted Patient",
+        "status": "PASS",
+        "evidence": "Patient #2 restored with active status and null deleted_at",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Schedule Appointment",
+        "status": "PASS",
+        "evidence": "Appointment #1 booked for 2026-11-11 10:00:00",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Update Appointment Status",
+        "status": "PASS",
+        "evidence": "Status updated to confirmed",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Detect Scheduling Conflict",
+        "status": "PASS",
+        "evidence": "Collision detected! Overlapping booking rejected with session validation error",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Mark Patient Arrival",
+        "status": "PASS",
+        "evidence": "Appointment status updated to 'arrived'",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Queue Ticket Issuance",
+        "status": "PASS",
+        "evidence": "Sequential Ticket #1 issued with urgent priority",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Call Patient to Operatory",
+        "status": "PASS",
+        "evidence": "Queue status updated to 'called' and appointment to 'in_consultation'",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Appointments & Queue",
+        "name": "Waiting Room Dashboard List",
+        "status": "PASS",
+        "evidence": "HTTP 200 OK \u2014 Active queue retrieved with triage priority",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Open Consultation Encounter",
+        "status": "PASS",
+        "evidence": "Consultation #1 draft opened with full clinical notes",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Record Vitals & Calculate BMI",
+        "status": "PASS",
+        "evidence": "BP 135\/88, HR 76, Temp 37.0\u00b0C, Weight 78.5kg, Height 176cm -> BMI calculated as 25.3",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "ICD-10 Diagnostic Coding",
+        "status": "PASS",
+        "evidence": "Diagnosis saved: G43.109 - Migraine with aura, not intractable",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Medical Notes Persistence",
+        "status": "PASS",
+        "evidence": "100% data fidelity of chief complaint, HPI, and physical examination verified",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Doctor Electronic Signature",
+        "status": "PASS",
+        "evidence": "Consultation #1 locked with signature at 2026-11-10 11:19:19",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Encounter Immutability Lock",
+        "status": "PASS",
+        "evidence": "Re-signing locked consultation rejected with security warning",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Electronic Prescription Issuance",
+        "status": "PASS",
+        "evidence": "Prescription #1 created with 2 itemized medications",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Clinical Workflow",
+        "name": "Longitudinal EMR Integration",
+        "status": "PASS",
+        "evidence": "Consultations, vitals, diagnoses, and Rx verified in patient chart",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Dental FDI Odontogram Tooth Update",
+        "status": "PASS",
+        "evidence": "Tooth 16 saved as 'decayed' with occlusal\/mesial surface pathology",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Dental Restorative Treatment Plan",
+        "status": "PASS",
+        "evidence": "Treatment #1 created: Composite Resin Restoration (2 Surfaces) (Cost: 450 MAD)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Ophthalmology OD\/OS Refraction & IOP",
+        "status": "PASS",
+        "evidence": "Refraction persisted: OD SPH -2.25\/CYL -0.75\/AXIS 95\/IOP 14.5 | OS SPH -2.00\/CYL -0.50\/AXIS 85\/IOP 15.0 | PD 63.5mm",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Dermatology Lesion & Phototype Mapping",
+        "status": "PASS",
+        "evidence": "Lesion recorded: Plaque Psoriasis (Left forearm, session #1)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Pediatrics WHO Growth Percentiles",
+        "status": "PASS",
+        "evidence": "Milestones persisted: 24 months, 12.4kg, 87.5cm, Head 48.2cm -> WHO Percentile 35.00%",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Specialty Modules",
+        "name": "Physiotherapy Plan, VAS Pain & ROM",
+        "status": "PASS",
+        "evidence": "Plan recorded: Cervical radiculopathy, VAS 6\/10, ROM 45 deg",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Commercial Invoicing with Taxes\/Discounts",
+        "status": "PASS",
+        "evidence": "Invoice #INV-2026-0001 created: Subtotal 500 MAD, Discount 50 MAD, Tax 45 MAD -> Total 495.00 MAD",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Record Partial Payment",
+        "status": "PASS",
+        "evidence": "Paid 200 MAD -> Balance 295.00 MAD, status 'partially_paid'",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Final Settlement & Account Balance Zero",
+        "status": "PASS",
+        "evidence": "Paid 295 MAD -> Balance settled to 0.00 MAD, status 'paid'",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Clinic Expense Logging",
+        "status": "PASS",
+        "evidence": "Expense #1 recorded: 420 MAD (supplies)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Inventory SKU & Stock Creation",
+        "status": "PASS",
+        "evidence": "Product created: Amoxicillin 500mg Capsules (SKU: MED-AMX-500, Stock: 150 units)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Stock Movement Deduction & Audit",
+        "status": "PASS",
+        "evidence": "Dispensed 20 units -> Current stock updated to 130; movement audit logged",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Billing & Inventory",
+        "name": "Cash Register Shift Closing & Audit",
+        "status": "PASS",
+        "evidence": "Register closed: Actual cash 295.00 MAD, Discrepancy 0.00 MAD",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Receptionist Barred from EMR Records",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden \u2014 Receptionist cannot view medical consultations",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Receptionist Barred from Clinical Diagnosing\/Signing",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden on both diagnosis and electronic signing",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Accountant Barred from Clinical Actions",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden \u2014 Accountant blocked from diagnoses and signing",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Nurse Barred from Signing Medical Chart",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden \u2014 Nurse restricted to vitals; cannot execute doctor signature",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Doctor Barred from Financial Ledgers",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden on expenses and cash closing",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Unauthorized Staff Barred from Backups",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden across Doctor, Nurse, Receptionist, Accountant, and Patient",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Patient Barred from Staff Internal Routes",
+        "status": "PASS",
+        "evidence": "HTTP 403 Forbidden on dashboard and patient registry",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Authorization & Privacy",
+        "name": "Patient Portal Isolation & Anti-Tampering",
+        "status": "PASS",
+        "evidence": "Portal scoped to authenticated email; malicious patient_id injection was overridden to Patient A (#1)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Backup & Disaster Recovery",
+        "name": "Full Database Backup Snapshot",
+        "status": "PASS",
+        "evidence": "Snapshot 'medicore_backup_2026-11-10_11-19-20.sqlite' generated (483328 bytes, verified on disk)",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Backup & Disaster Recovery",
+        "name": "Disaster Simulation (Intentional Data Destruction)",
+        "status": "PASS",
+        "evidence": "Invoices wiped (count: 0), Patient B deleted, Patient A corrupted",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Backup & Disaster Recovery",
+        "name": "Complete Restoration & 100% Data Fidelity",
+        "status": "PASS",
+        "evidence": "100% Data Fidelity Restored: Patients (3\/3), Invoices (1\/1), Consultations (1\/1), Patient A name restored to 'Tariq'",
+        "error": null,
+        "action": null
+    },
+    {
+        "domain": "Backup & Disaster Recovery",
+        "name": "Reject Invalid\/Tampered Backup Request",
+        "status": "PASS",
+        "evidence": "System raised ModelNotFoundException on ID 99999; safely prevented execution",
+        "error": null,
+        "action": null
+    }
+]

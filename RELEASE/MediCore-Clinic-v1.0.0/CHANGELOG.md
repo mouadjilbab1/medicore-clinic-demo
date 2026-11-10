@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### [1.0.0] - 2026-11-09
 #### Commercial Release Candidate & Production Certification
 - **Complete Enterprise Architecture & Documentation Suite:** Comprehensive technical manuals, API guides, deployment runbooks, and legal license agreements.
-- **Multi-Branch Relational Database Schema:** 46 tables with full MySQL 8.0 (InnoDB) and SQLite compatibility, foreign key cascading, and optimized composite indexes.
+- **Multi-Branch Relational Database Schema:** 55 relational tables (46 domain/clinical application tables + 9 framework infrastructure tables) with full MySQL 8.0 (InnoDB) and SQLite compatibility, 95 foreign key constraints, 48 indexes, and optimized composite keys.
 - **Strict Role-Based Access Control (RBAC):** HTTP-level boundary security enforcing 13 roles (`admin`, `director`, `manager`, `doctor`, `dentist`, `nurse`, `receptionist`, `accountant`, `pharmacist`, `lab_tech`, `imaging_tech`, `inventory_mgr`, `patient`). Receptionists and cashiers strictly barred from medical notes with HTTP 403 Forbidden.
 - **Patient Management Engine:** Demographic intake, unique `PAT-YYYY-XXXX` identifiers, allergy alerts, duplicate detection, and audited record merging.
 - **Smart Appointment Scheduling Engine:** Conflict detection for overlapping doctor schedules, operatory room collisions, and approved leaves.
