@@ -76,4 +76,18 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertSessionHasErrors('email');
     }
+
+    public function test_session_id_regenerates_on_successful_authentication(): void
+    {
+        $this->get('/login');
+        $initialSessionId = session()->getId();
+
+        $response = $this->post('/login', [
+            'email' => 'doctor@medicore.test',
+            'password' => 'password123',
+        ]);
+
+        $this->assertAuthenticated();
+        $this->assertNotEquals($initialSessionId, session()->getId());
+    }
 }

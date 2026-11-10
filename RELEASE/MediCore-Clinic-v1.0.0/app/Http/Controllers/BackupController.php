@@ -38,13 +38,19 @@ class BackupController extends Controller
     public function download(int $id): BinaryFileResponse|RedirectResponse
     {
         $record = BackupRecord::findOrFail($id);
-        $filePath = storage_path("app/backups/{$record->filename}");
+        $filename = basename($record->filename);
+
+        if ($filename !== $record->filename || !preg_match('/^medicore_backup_[\w\.-]+\.(sqlite|sql)$/', $filename)) {
+            return back()->with('error', 'Security Alert: Invalid backup archive filename format.');
+        }
+
+        $filePath = storage_path("app/backups/{$filename}");
 
         if (!File::exists($filePath)) {
             return back()->with('error', 'Requested backup archive not found on disk.');
         }
 
-        return response()->download($filePath, $record->filename);
+        return response()->download($filePath, $filename);
     }
 
     public function restore(Request $request, int $id): RedirectResponse

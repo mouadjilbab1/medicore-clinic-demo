@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +14,14 @@ use App\Models\AuditLog;
 
 class AuthController extends Controller
 {
+    /**
+     * Get the rate limiting throttle key for the request.
+     */
+    protected function throttleKey(Request $request): string
+    {
+        return Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
+    }
+
     public function showLogin(): Response
     {
         return Inertia::render('Auth/Login');
@@ -19,12 +29,37 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
+        $throttleKey = $this->throttleKey($request);
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $targetUser = User::where('email', $request->input('email'))->first();
+
+            AuditLog::create([
+                'user_id' => $targetUser?->id,
+                'action' => 'login_lockout',
+                'auditable_type' => User::class,
+                'auditable_id' => $targetUser?->id ?? 0,
+                'new_values' => ['email' => $request->input('email'), 'lockout_seconds' => $seconds],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            return back()->withErrors([
+                'email' => __('auth.throttle', [
+                    'seconds' => $seconds,
+                    'minutes' => ceil($seconds / 60),
+                ]) ?: "Too many login attempts. Please try again in {$seconds} seconds.",
+            ])->onlyInput('email');
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
             $user = Auth::user();
@@ -47,6 +82,8 @@ class AuthController extends Controller
 
             return redirect()->intended(route('dashboard'));
         }
+
+        RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors([
             'email' => __('auth.failed') ?: 'The provided credentials do not match our medical staff records.',
