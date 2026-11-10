@@ -89,7 +89,63 @@ class InstallController extends Controller
             'admin_email' => ['required', 'email'],
             'admin_password' => ['required', 'string', 'min:8'],
             'seed_demo_data' => ['boolean'],
+            'db_driver' => ['nullable', 'in:sqlite,mysql'],
+            'db_host' => ['nullable', 'string'],
+            'db_port' => ['nullable', 'numeric'],
+            'db_name' => ['nullable', 'string'],
+            'db_user' => ['nullable', 'string'],
+            'db_password' => ['nullable', 'string'],
         ]);
+
+        // Configure database and write .env if provided
+        $driver = $validated['db_driver'] ?? config('database.default', 'sqlite');
+        $envPath = base_path('.env');
+        if (File::exists($envPath)) {
+            $envContent = File::get($envPath);
+            $envContent = preg_replace('/^DB_CONNECTION=.*$/m', "DB_CONNECTION={$driver}", $envContent);
+            if ($driver === 'mysql') {
+                $host = $validated['db_host'] ?? '127.0.0.1';
+                $port = $validated['db_port'] ?? '3306';
+                $database = $validated['db_name'] ?? 'medicore_clinic';
+                $username = $validated['db_user'] ?? 'root';
+                $password = $validated['db_password'] ?? '';
+
+                $envContent = preg_replace('/^DB_HOST=.*$/m', "DB_HOST={$host}", $envContent);
+                $envContent = preg_replace('/^DB_PORT=.*$/m', "DB_PORT={$port}", $envContent);
+                $envContent = preg_replace('/^DB_DATABASE=.*$/m', "DB_DATABASE={$database}", $envContent);
+                $envContent = preg_replace('/^DB_USERNAME=.*$/m', "DB_USERNAME={$username}", $envContent);
+                $envContent = preg_replace('/^DB_PASSWORD=.*$/m', "DB_PASSWORD=\"{$password}\"", $envContent);
+
+                config([
+                    'database.default' => 'mysql',
+                    'database.connections.mysql.host' => $host,
+                    'database.connections.mysql.port' => $port,
+                    'database.connections.mysql.database' => $database,
+                    'database.connections.mysql.username' => $username,
+                    'database.connections.mysql.password' => $password,
+                ]);
+                DB::purge('mysql');
+            } else {
+                $sqlitePath = database_path('database.sqlite');
+                if (!File::exists($sqlitePath)) {
+                    File::put($sqlitePath, '');
+                }
+                $envContent = preg_replace('/^DB_DATABASE=.*$/m', "DB_DATABASE={$sqlitePath}", $envContent);
+                config([
+                    'database.default' => 'sqlite',
+                    'database.connections.sqlite.database' => $sqlitePath,
+                ]);
+                DB::purge('sqlite');
+            }
+            File::put($envPath, $envContent);
+        } else {
+            if ($driver === 'sqlite') {
+                $sqlitePath = database_path('database.sqlite');
+                if (!File::exists($sqlitePath)) {
+                    File::put($sqlitePath, '');
+                }
+            }
+        }
 
         // Run migrations
         Artisan::call('migrate', ['--force' => true]);
