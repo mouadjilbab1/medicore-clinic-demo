@@ -15,8 +15,11 @@
 
 Experience MediCore Clinic instantly in your browser without local installation:
 
-### Option 1: 1-Click Cloud Demo (GitHub Codespaces)
-Click the badge below to launch a fully functional, isolated cloud container with PHP, SQLite, and pre-seeded realistic clinic data in under 45 seconds:
+### 🚀 Public 24/7 Live Web Demo:
+👉 **[https://medicore-clinic-demo.onrender.com](https://medicore-clinic-demo.onrender.com)**
+
+### ⚡ 1-Click Cloud Sandbox (GitHub Codespaces):
+Click the badge below to launch a private cloud container with PHP, SQLite, and pre-seeded realistic clinic data in under 45 seconds:
 
 👉 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mouadjilbab1/medicore-clinic-demo)
 
