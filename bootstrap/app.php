@@ -28,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->priority([
             \App\Http\Middleware\EnsureInstalled::class,
             \Illuminate\Auth\Middleware\Authenticate::class,

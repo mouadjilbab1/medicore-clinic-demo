@@ -1,0 +1,14 @@
+.git
+.github
+.devcontainer
+node_modules
+/public/hot
+storage/*.key
+storage/installed
+storage/logs/*.log
+database/*.sqlite
+RELEASE/
+RELEASE_BACKUP_PHASE6/
+*.zip
+*.tar.gz
+*.png
