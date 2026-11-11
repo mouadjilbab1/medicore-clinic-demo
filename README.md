@@ -2,6 +2,48 @@
 ### Complete Enterprise Medical Clinic Management System
 **Version:** 1.0.0 Commercial Release · **Architecture:** Self-Hosted · Full Source Code Delivery · Single-Clinic Perpetual License
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mouadjilbab1/medicore-clinic-demo)
+[![Laravel Version](https://img.shields.io/badge/Laravel-11.x%20%7C%2012.x-red.svg)](https://laravel.com)
+[![React Version](https://img.shields.io/badge/React-18.x%20%7C%2019.x-blue.svg)](https://react.dev)
+[![PHP](https://img.shields.io/badge/PHP-8.2%20%7C%208.3-777BB4.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-Proprietary%20Commercial-emerald.svg)](LICENSE_AGREEMENT.md)
+[![GDPR Compliant](https://img.shields.io/badge/GDPR-Self--Hosted%20Sovereign-success.svg)](RELEASE/Commercial-Launch/B2B_OUTREACH_COMPLIANCE_REPORT.md)
+
+---
+
+## 🌟 Interactive Live Demo
+
+Experience MediCore Clinic instantly in your browser without local installation:
+
+### Option 1: 1-Click Cloud Demo (GitHub Codespaces)
+Click the badge below to launch a fully functional, isolated cloud container with PHP, SQLite, and pre-seeded realistic clinic data in under 45 seconds:
+
+👉 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mouadjilbab1/medicore-clinic-demo)
+
+### Demo Credentials (Pre-Seeded)
+| Role | Email | Password | Access Highlights |
+| :--- | :--- | :--- | :--- |
+| **Doctor / General Practice** | `doctor@medicore.local` | `DoctorPass123!` | Full EMR, Consultations, e-Rx Prescriptions |
+| **Dental Surgeon** | `dentist@medicore.local` | `DentistPass123!` | Interactive 32-Tooth FDI Odontogram, Restorations |
+| **Receptionist / Triage** | `receptionist@medicore.local` | `ReceptionPass123!` | Patient Intake, Queue Tickets, Calendar |
+| **Master Administrator** | `admin@medicore.local` | `AdminPass123!` | System Settings, Roles, Backups, Analytics |
+| **Patient Portal** | `patient@medicore.local` | `PatientPass123!` | Personal Prescriptions, Appointments, Invoices |
+
+---
+
+## 📸 Visual Showcase
+
+![MediCore Clinic Dashboard & Overview](RELEASE/Commercial-Assets/Main-Preview.png)
+
+<p align="center">
+  <img src="RELEASE/Commercial-Assets/Screenshots/08_Dental_Odontogram_FDI.png" width="48%" alt="Dental FDI Odontogram" />
+  <img src="RELEASE/Commercial-Assets/Screenshots/09_Ophthalmology_Refraction.png" width="48%" alt="Ophthalmology Refraction" />
+</p>
+<p align="center">
+  <img src="RELEASE/Commercial-Assets/Screenshots/06_Public_Waiting_Room_Display.png" width="48%" alt="Waiting Room TV Board" />
+  <img src="RELEASE/Commercial-Assets/Screenshots/14_Arabic_RTL_Dashboard.png" width="48%" alt="Arabic RTL Support" />
+</p>
+
 ---
 
 ## Overview
