@@ -174,6 +174,13 @@ Route::middleware(['auth', 'role:admin,director,manager,doctor,dentist,nurse,rec
         Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
     });
 
+    // Clinic Profile & Corporate Settings (Strictly Super Admin / Executive Director)
+    Route::middleware(['role:admin,director'])->group(function () {
+        Route::get('/settings/clinic', [\App\Http\Controllers\ClinicSettingsController::class, 'edit'])->name('settings.clinic');
+        Route::post('/settings/clinic', [\App\Http\Controllers\ClinicSettingsController::class, 'update'])->name('settings.clinic.update');
+        Route::put('/settings/clinic', [\App\Http\Controllers\ClinicSettingsController::class, 'update']);
+    });
+
     // System Backups (Strictly Super Admin / Executive Director)
     Route::middleware(['role:admin,director'])->group(function () {
         Route::get('/settings/backup', [BackupController::class, 'index'])->name('backups.index');

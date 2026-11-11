@@ -67,6 +67,7 @@ export default function AuthenticatedLayout({ children, title }: Props) {
         { name: t('nav.laboratory', 'Laboratory'), href: route('laboratory.index'), icon: FlaskConical },
         { name: t('nav.imaging', 'Imaging & Radiology'), href: route('imaging.index'), icon: Camera },
         { name: t('nav.staff', 'Staff & Doctors'), href: route('staff.index'), icon: UserCheck },
+        { name: t('nav.clinic_settings', 'Clinic Settings'), href: route('settings.clinic'), icon: Building2 },
         { name: 'Database Backup', href: route('backup.index'), icon: HardDriveDownload },
     ];
 

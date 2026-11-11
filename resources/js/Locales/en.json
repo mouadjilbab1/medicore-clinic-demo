@@ -23,6 +23,8 @@
     "nav.laboratory": "Laboratory",
     "nav.imaging": "Imaging & Radiology",
     "nav.staff": "Staff & Doctors",
+    "nav.clinic_settings": "Clinic Profile & Settings",
+    "nav.backup": "Database Backup",
     "nav.reports": "Reports & Analytics",
     "nav.settings": "Settings",
     "nav.logout": "Log Out",

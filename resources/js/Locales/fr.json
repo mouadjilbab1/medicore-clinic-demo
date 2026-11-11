@@ -23,6 +23,8 @@
     "nav.laboratory": "Laboratoire",
     "nav.imaging": "Imagerie & Radiologie",
     "nav.staff": "Personnel & Médecins",
+    "nav.clinic_settings": "Paramètres & Profil du Cabinet",
+    "nav.backup": "Sauvegarde du Système",
     "nav.reports": "Rapports & Statistiques",
     "nav.settings": "Paramètres",
     "nav.logout": "Déconnexion",
